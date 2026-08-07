@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: credit-default-api
+    ports:
+      - "8000:8000"
+
+  streamlit:
+    image: python:3.13-bookworm
+    container_name: credit-default-streamlit
+    working_dir: /app
+    volumes:
+      - ./streamlit:/app/streamlit
+    environment:
+      API_URL: http://api:8000/predict
+    command: >
+      sh -c "pip install --no-cache-dir streamlit requests &&
+             streamlit run streamlit/app.py
+             --server.address=0.0.0.0
+             --server.port=8501"
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
